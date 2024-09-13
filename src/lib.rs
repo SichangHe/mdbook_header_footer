@@ -1,5 +1,6 @@
 use std::{
     io::{stdin, stdout},
+    path::PathBuf,
     process::exit,
 };
 
@@ -11,10 +12,13 @@ use mdbook_fork4ls::{
     preprocess::CmdPreprocessor,
     BookItem,
 };
+use rayon::prelude::*;
 use regex::Regex;
 use serde::Deserialize;
 use tracing::{debug, trace, warn};
 
+/// Run the header-footer preprocessor: take the book from StdIn, process it,
+/// and write it to StdOut.
 pub fn run() -> Result<()> {
     let (ctx, mut book) = CmdPreprocessor::parse_input(stdin())?;
     let raw_config: RawConfig = match ctx.config.get("preprocessor.header-footer") {
@@ -22,37 +26,70 @@ pub fn run() -> Result<()> {
         None => Ok(Default::default()),
     }?;
     let config = raw_config.compile()?;
-    pad_book(&config, &mut book)?;
+    config.pad_book(&mut book)?;
     serde_json::to_writer(stdout(), &book)?;
     exit(0);
 }
 
-pub fn pad_book(config: &Config, book: &mut Book) -> Result<()> {
-    book.for_each_mut(|item| {
+/// Collect all chapter records in the book.
+fn all_chapter_records<'a>(items: &'a mut [BookItem], accumulator: &mut Vec<ChapterRecord<'a>>) {
+    items.iter_mut().for_each(move |item| {
         if let BookItem::Chapter(Chapter {
+            name,
             content,
-            path: Some(path),
+            path,
+            sub_items,
             ..
         }) = item
         {
-            match path.to_str() {
-                Some(path) => match config.pad_chapter(content, path) {
-                    Some(new_content) => *content = new_content,
-                    None => debug!(?path, "Did not pad chapter."),
-                },
-                _ => warn!(?path, "Chapter path is not a valid UTF-8 string."),
-            }
+            accumulator.push(ChapterRecord {
+                name,
+                content,
+                path,
+            });
+            all_chapter_records(sub_items, accumulator);
         }
-    });
-    Ok(())
+    })
 }
 
+/// A simplified representation of a chapter for patching.
+struct ChapterRecord<'a> {
+    name: &'a str,
+    content: &'a mut String,
+    path: &'a Option<PathBuf>,
+}
+
+/// Compiled configuration for the padding.
 pub struct Config {
     headers: Vec<Matcher>,
     footers: Vec<Matcher>,
 }
 
 impl Config {
+    /// Pad the book with headers and footers.
+    pub fn pad_book(self, book: &mut Book) -> Result<()> {
+        let mut contents_and_paths = Vec::with_capacity(128);
+        all_chapter_records(&mut book.sections, &mut contents_and_paths);
+        contents_and_paths.into_par_iter().for_each(
+            |ChapterRecord {
+                 name,
+                 content,
+                 path,
+             }| match path {
+                Some(path) => match path.to_str() {
+                    Some(path) => match self.pad_chapter(content, path) {
+                        Some(new_content) => *content = new_content,
+                        None => debug!(?path, "Did not pad chapter."),
+                    },
+                    _ => warn!(?path, "Chapter path is not a valid UTF-8 string."),
+                },
+                None => warn!(?name, "Chapter has no path."),
+            },
+        );
+        Ok(())
+    }
+
+    /// Pad the chapter with headers and footers.
     pub fn pad_chapter(&self, content: &str, path: &str) -> Option<String> {
         let (mut headers, mut footers) = (Vec::new(), Vec::new());
         for header in &self.headers {
@@ -86,12 +123,14 @@ impl Config {
     }
 }
 
+/// A compiled padding instruction.
 pub struct Matcher {
     regex: Regex,
     regex_str: String,
     padding: String,
 }
 
+/// The raw configuration for padding.
 #[derive(Deserialize)]
 #[derive_everything]
 pub struct RawConfig {
@@ -116,6 +155,7 @@ impl RawConfig {
     }
 }
 
+/// A raw padding instruction.
 #[derive(Deserialize)]
 #[derive_everything]
 #[serde(rename_all = "kebab-case")]
