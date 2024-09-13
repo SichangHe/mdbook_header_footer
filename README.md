@@ -23,7 +23,7 @@ the chapter.
 ## Installation
 
 ```sh
-cargo install mdbook-header-footer
+cargo install mdbook_header_footer
 ```
 
 ## Debugging
