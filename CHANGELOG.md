@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1](https://github.com/SichangHe/mdbook_header_footer/compare/v0.0.0...v0.0.1) - 2024-09-13
+
+### Added
+
+- pad chapters in parallel
+
+### Other
+
+- fix package name
+
 ## [0.0.0](https://github.com/SichangHe/mdbook_header_footer/releases/tag/v0.0.0) - 2024-09-13
 
 ### Added
