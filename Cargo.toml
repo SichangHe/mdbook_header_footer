@@ -2,7 +2,9 @@
 name = "mdbook_header_footer"
 version = "0.0.0"
 edition = "2021"
-publish = false
+description = "mdBook preprocessor to prepend header and append footer to certain chapters"
+license = "MIT"
+repository = "https://github.com/SichangHe/mdbook_header_footer"
 
 [dependencies]
 anyhow = { version = "1", features = ["backtrace"] }
