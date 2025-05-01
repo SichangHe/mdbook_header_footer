@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3](https://github.com/SichangHe/mdbook_header_footer/compare/v0.0.2...v0.0.3) - 2025-05-01
+
+### Other
+
+- trigger release-plz run
+- update sccache job
+- use mdbook_fork4ls v0.4.48
+
 ## [0.0.2](https://github.com/SichangHe/mdbook_header_footer/compare/v0.0.1...v0.0.2) - 2024-12-07
 
 ### Other
