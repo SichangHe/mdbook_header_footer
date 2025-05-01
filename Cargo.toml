@@ -10,7 +10,7 @@ repository = "https://github.com/SichangHe/mdbook_header_footer"
 anyhow = { version = "1", features = ["backtrace"] }
 clap = { version = "4", features = ["derive"] }
 derive_everything = "0.1"
-mdbook_fork4ls = { version = "0.4.43", default-features = false }
+mdbook_fork4ls = { version = "0.4.48", default-features = false }
 rayon = "1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
