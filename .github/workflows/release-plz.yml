@@ -9,7 +9,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/release-plz.yml'
+      - '.github/workflows/**.yml'
       - '**.rs'
       - '**Cargo.toml'
       - '**CHANGELOG.md'
