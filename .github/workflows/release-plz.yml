@@ -4,14 +4,7 @@ permissions:
   contents: write
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/**.yml'
-      - '**.rs'
-      - '**Cargo.toml'
-      - '**CHANGELOG.md'
+  workflow_dispatch:
 
 jobs:
   release-plz:
