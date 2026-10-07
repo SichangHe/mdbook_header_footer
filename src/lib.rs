@@ -7,11 +7,7 @@ use std::{
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use derive_everything::derive_everything;
-use mdbook_fork4ls::{
-    book::{Book, Chapter},
-    preprocess::CmdPreprocessor,
-    BookItem,
-};
+use mdbook_preprocessor::book::{Book, BookItem, Chapter};
 use rayon::prelude::*;
 use regex::Regex;
 use serde::Deserialize;
@@ -20,11 +16,12 @@ use tracing::{debug, trace, warn};
 /// Run the header-footer preprocessor: take the book from StdIn, process it,
 /// and write it to StdOut.
 pub fn run() -> Result<()> {
-    let (ctx, mut book) = CmdPreprocessor::parse_input(stdin())?;
-    let raw_config: RawConfig = match ctx.config.get("preprocessor.header-footer") {
-        Some(raw) => raw.clone().try_into(),
-        None => Ok(Default::default()),
-    }?;
+    // 🧑 "update mdbook_fork4ls, mdbook_ls, and other mdbook_* repos of mine to track the latest mdbook version"
+    let (ctx, mut book) = mdbook_preprocessor::parse_input(stdin())?;
+    let raw_config: RawConfig = ctx
+        .config
+        .get("preprocessor.header-footer")?
+        .unwrap_or_default();
     let config = raw_config.compile()?;
     config.pad_book(&mut book)?;
     serde_json::to_writer(stdout(), &book)?;
@@ -69,7 +66,7 @@ impl Config {
     /// Pad the book with headers and footers.
     pub fn pad_book(self, book: &mut Book) -> Result<()> {
         let mut contents_and_paths = Vec::with_capacity(128);
-        all_chapter_records(&mut book.sections, &mut contents_and_paths);
+        all_chapter_records(&mut book.items, &mut contents_and_paths);
         contents_and_paths.into_par_iter().for_each(
             |ChapterRecord {
                  name,

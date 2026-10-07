@@ -1,4 +1,5 @@
 # mdBook-Header-Footer
+(authored by human unless marked 🤖)
 
 This mdBook preprocessor prepends headers and appends footers to
 all chapters in the book whose URL path match the corresponding regex.
@@ -22,8 +23,10 @@ the chapter.
 
 ## Installation
 
+🤖 Install this fork from source:
+
 ```sh
-cargo install mdbook_header_footer
+cargo install --git https://github.com/SichangHe/mdbook_header_footer --locked mdbook_header_footer
 ```
 
 ## Debugging
