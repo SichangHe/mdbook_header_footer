@@ -1,7 +1,6 @@
 name: Release-plz
 
 permissions:
-  pull-requests: write
   contents: write
 
 on:
@@ -31,4 +30,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         with:
+          # 🧑 "commit to main and rid random branches."
+          command: release
           project_manifest: Cargo.toml
